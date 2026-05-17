@@ -37,7 +37,7 @@ Development-only Python tooling and the build backend are also bounded by major 
 ## GitHub Actions
 
 Workflows use explicit Python and Node versions. GitHub Actions are pinned to commit SHAs with
-the human-readable major tag left in a comment, such as `# v4`. This prevents a moved tag from
+the human-readable major tag left in a comment, such as `# v6`. This prevents a moved tag from
 changing the code that runs with repository, PyPI, npm, or Cloudflare permissions.
 
 Dependabot is configured to open weekly maintenance PRs for npm, Python, and GitHub Actions.
