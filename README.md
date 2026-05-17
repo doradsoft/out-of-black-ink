@@ -97,7 +97,7 @@ Run the local quality checks:
 python -m ruff check .
 python -m pytest
 python -m build
-npm install
+npm ci
 npm run check:ts
 npm run check:web
 npm run check:worker
@@ -105,6 +105,8 @@ npm run test:worker
 ```
 
 The CI pipeline runs these checks on Python 3.9 through 3.14.
+Node.js 24 is used for the npm workspaces.
+See [docs/DEPENDENCY_POLICY.md](docs/DEPENDENCY_POLICY.md) for version pinning rules.
 
 More command examples live in [packages/python/examples/](packages/python/examples/).
 

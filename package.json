@@ -2,6 +2,11 @@
   "name": "out-of-black-ink-monorepo",
   "private": true,
   "type": "module",
+  "packageManager": "npm@11.10.1",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
   "workspaces": [
     "apps/*",
     "packages/typescript"

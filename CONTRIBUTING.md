@@ -26,12 +26,15 @@ Run the same checks used by CI:
 python -m ruff check .
 python -m pytest
 python -m build
-npm install
+npm ci
 npm run check:ts
 npm run check:web
 npm run check:worker
 npm run test:worker
 ```
+
+Use Node.js 24 for npm workspaces. Dependency rules are documented in
+[`docs/DEPENDENCY_POLICY.md`](docs/DEPENDENCY_POLICY.md).
 
 ## Testing Notes
 

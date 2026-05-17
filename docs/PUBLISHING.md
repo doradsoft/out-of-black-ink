@@ -87,12 +87,15 @@ OIDC and remove the long-lived `NPM_TOKEN`.
    python -m ruff check .
    python -m pytest
    python -m build
-   npm install
+   npm ci
    npm run check:ts
    npm run check:web
    npm run check:worker
    npm run test:worker
    ```
+
+   If you change dependencies for the npm package or apps, commit the root `package-lock.json`
+   and follow [DEPENDENCY_POLICY.md](DEPENDENCY_POLICY.md).
 
 3. Commit and push.
 4. Create a GitHub release.
