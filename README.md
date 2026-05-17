@@ -93,6 +93,20 @@ The CI pipeline runs these checks on Python 3.9 through 3.14.
 
 More command examples live in [examples/](examples/).
 
+## Browser App
+
+There is also a client-side web version in [docs/](docs/). It runs entirely in the
+browser with PDF.js and jsPDF, so PDFs do not need to be uploaded to a server.
+
+GitHub Pages can host this static app at:
+
+```text
+https://doradsoft.github.io/out-of-black-ink/
+```
+
+The browser app is intentionally separate from the Python package. It uses the same recoloring
+approach, but does not import or run the Python package.
+
 ## Release
 
 Publishing is handled by GitHub Actions:

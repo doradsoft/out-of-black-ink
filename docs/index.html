@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>out-of-black-ink</title>
+    <meta
+      name="description"
+      content="Convert black and gray PDF content to color ink in your browser."
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <main class="workspace">
+      <section class="intro" aria-labelledby="app-title">
+        <p class="eyebrow">Client-side PDF recolor</p>
+        <h1 id="app-title">out-of-black-ink</h1>
+        <p class="lede">
+          Recolor black and gray PDF content when your black cartridge is out. Files stay in
+          your browser.
+        </p>
+      </section>
+
+      <section class="tool" aria-label="PDF conversion tool">
+        <div class="input-zone">
+          <label class="dropzone" for="pdf-file" id="dropzone">
+            <span class="dropzone-icon" aria-hidden="true">PDF</span>
+            <span class="dropzone-title">Choose a PDF</span>
+            <span class="dropzone-detail">or drop one here</span>
+          </label>
+          <input id="pdf-file" type="file" accept="application/pdf,.pdf" />
+          <p id="file-name" class="file-name">No file selected</p>
+        </div>
+
+        <form class="settings" id="settings-form">
+          <div class="field">
+            <label for="ink-color">Ink color</label>
+            <div class="color-row">
+              <input id="ink-color" name="ink-color" type="color" value="#0078aa" />
+              <input
+                id="ink-color-text"
+                name="ink-color-text"
+                type="text"
+                inputmode="text"
+                value="#0078aa"
+                aria-label="Ink color hex value"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="pages">Pages</label>
+            <input id="pages" name="pages" type="text" placeholder="All pages, or 1,3,5" />
+          </div>
+
+          <div class="field">
+            <label for="scale">Render scale <output id="scale-value">2.8</output></label>
+            <input id="scale" name="scale" type="range" min="1" max="4" step="0.1" value="2.8" />
+          </div>
+
+          <div class="field">
+            <label for="threshold">Threshold <output id="threshold-value">235</output></label>
+            <input
+              id="threshold"
+              name="threshold"
+              type="range"
+              min="120"
+              max="255"
+              step="1"
+              value="235"
+            />
+          </div>
+
+          <div class="field">
+            <label for="saturation">Gray tolerance <output id="saturation-value">38</output></label>
+            <input
+              id="saturation"
+              name="saturation"
+              type="range"
+              min="0"
+              max="120"
+              step="1"
+              value="38"
+            />
+          </div>
+
+          <button id="convert-button" class="primary-action" type="submit" disabled>
+            Convert PDF
+          </button>
+        </form>
+      </section>
+
+      <section class="status-band" aria-live="polite">
+        <p id="status">Select a PDF to begin.</p>
+        <progress id="progress" value="0" max="1" hidden></progress>
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="assets/app.js" type="module"></script>
+  </body>
+</html>

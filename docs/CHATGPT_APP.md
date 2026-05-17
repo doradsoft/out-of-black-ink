@@ -3,6 +3,10 @@
 `out-of-black-ink` is currently a Python package and CLI. Publishing it as a ChatGPT App
 requires a hosted Apps SDK integration around that converter.
 
+GitHub Pages can host the static browser app in this repository, but it cannot host the
+ChatGPT App MCP server. The MCP server needs a backend that can receive tool calls at a
+public HTTPS endpoint.
+
 ## Current Best Fit
 
 The first ChatGPT App version should expose a document conversion workflow:
