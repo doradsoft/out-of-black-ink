@@ -1,6 +1,9 @@
 # out-of-black-ink web app
 
-TypeScript client-side browser app for recoloring black and gray PDF content.
+Client-side browser app for recoloring black and gray PDF content.
+
+The reusable recoloring helpers live in `../../packages/typescript`; this app is only the
+deployable GitHub Pages surface.
 
 ## Development
 

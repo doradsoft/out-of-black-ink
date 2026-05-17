@@ -8,12 +8,11 @@ import {
   normalizeHexColor,
   parsePages,
   recolorImageData,
-} from "./pdf-recolor.js";
+  type RgbColor,
+} from "@doradsoft/out-of-black-ink";
 import "./styles.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-
-import type { RgbColor } from "./pdf-recolor.js";
 
 const mustQuery = <ElementType extends Element>(
   selector: string,

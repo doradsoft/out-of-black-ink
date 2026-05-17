@@ -9,14 +9,14 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["src/**/*.ts", "*.ts"],
+    files: ["src/**/*.ts", "test/**/*.ts"],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 2023,
       globals: {
         ...globals.browser,
         ...globals.node,
       },
+      sourceType: "module",
     },
   },
 ];

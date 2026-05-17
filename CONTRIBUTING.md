@@ -26,6 +26,11 @@ Run the same checks used by CI:
 python -m ruff check .
 python -m pytest
 python -m build
+npm install
+npm run check:ts
+npm run check:web
+npm run check:worker
+npm run test:worker
 ```
 
 ## Testing Notes
@@ -36,5 +41,6 @@ images over checking generated PDF bytes, which can vary across dependency versi
 ## Repository Layout
 
 - `packages/python/`: Python package source, tests, and examples.
-- `apps/web/`: TypeScript web app deployed to GitHub Pages.
-- `apps/cloudflare-worker/`: TypeScript Cloudflare Worker used as the ChatGPT MCP endpoint.
+- `packages/typescript/`: TypeScript package source and tests.
+- `apps/web/`: GitHub Pages web app built on the TypeScript package.
+- `apps/cloudflare-worker/`: Cloudflare Worker used as the ChatGPT MCP endpoint.

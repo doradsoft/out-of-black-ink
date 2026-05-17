@@ -1,0 +1,16 @@
+{
+  "name": "out-of-black-ink-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/typescript"
+  ],
+  "scripts": {
+    "check": "npm run check --workspaces --if-present",
+    "check:ts": "npm run check --workspace @doradsoft/out-of-black-ink",
+    "check:web": "npm run check --workspace @doradsoft/out-of-black-ink-web",
+    "check:worker": "npm run check --workspace out-of-black-ink-cloudflare-worker",
+    "test:worker": "npm test --workspace out-of-black-ink-cloudflare-worker"
+  }
+}

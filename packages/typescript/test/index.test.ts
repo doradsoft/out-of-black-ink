@@ -7,7 +7,7 @@ import {
   parsePages,
   type RgbColor,
   recolorImageData,
-} from "../src/pdf-recolor.js";
+} from "../src/index.js";
 
 const imageData = (pixels: RgbColor[]): ImageData =>
   ({

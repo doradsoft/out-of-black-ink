@@ -9,3 +9,4 @@ dist/
 htmlcov/
 node_modules/
 apps/*/dist/
+packages/*/dist/

@@ -15,8 +15,9 @@ Useful when your black cartridge is empty but color ink still works.
 ## Repository Layout
 
 - [packages/python/](packages/python/) contains the Python package, tests, and examples.
-- [apps/web/](apps/web/) contains the TypeScript browser app deployed to GitHub Pages.
-- [apps/cloudflare-worker/](apps/cloudflare-worker/) contains the TypeScript ChatGPT MCP endpoint.
+- [packages/typescript/](packages/typescript/) contains the TypeScript npm package used by browser apps.
+- [apps/web/](apps/web/) contains the GitHub Pages browser app.
+- [apps/cloudflare-worker/](apps/cloudflare-worker/) contains the ChatGPT MCP endpoint deployed to Cloudflare Workers.
 
 ## What it does
 
@@ -96,8 +97,11 @@ Run the local quality checks:
 python -m ruff check .
 python -m pytest
 python -m build
-cd apps/web
-npm run check
+npm install
+npm run check:ts
+npm run check:web
+npm run check:worker
+npm run test:worker
 ```
 
 The CI pipeline runs these checks on Python 3.9 through 3.14.
@@ -111,8 +115,8 @@ the browser with PDF.js and jsPDF, so PDFs do not need to be uploaded to a serve
 
 Open it here: [doradsoft.github.io/out-of-black-ink](https://doradsoft.github.io/out-of-black-ink/).
 
-The browser app is intentionally separate from the Python package. It uses the same recoloring
-approach, but does not import or run the Python package.
+The browser app is intentionally separate from the Python package. It uses the TypeScript
+package in [packages/typescript/](packages/typescript/) and does not import or run Python.
 
 ## Release
 
@@ -120,18 +124,18 @@ Publishing is handled by GitHub Actions:
 
 - Pull requests and pushes run tests, linting, and package builds.
 - Publishing a GitHub release publishes the package to PyPI.
-- Publishing a GitHub release can also publish the web package to npm.
+- Publishing a GitHub release can also publish the TypeScript package to npm.
 - The Publish workflow can also be run manually against TestPyPI.
 
 See [docs/PUBLISHING.md](docs/PUBLISHING.md) for PyPI and npm token setup.
 
 ## ChatGPT App
 
-This project can become a ChatGPT App by wrapping the converter in a hosted Apps SDK MCP
-server. See [docs/CHATGPT_APP.md](docs/CHATGPT_APP.md) for the publishing plan.
+This project includes a ChatGPT App MCP endpoint that opens the client-side converter.
+See [docs/CHATGPT_APP.md](docs/CHATGPT_APP.md) for the publishing plan.
 
-The Cloudflare Worker deploy scaffold lives in [apps/cloudflare-worker/](apps/cloudflare-worker/).
-It deploys a disabled-by-default endpoint at
+The Cloudflare Worker lives in [apps/cloudflare-worker/](apps/cloudflare-worker/).
+It deploys the MCP endpoint at
 [out-of-black-ink-mcp.doradsoft.workers.dev](https://out-of-black-ink-mcp.doradsoft.workers.dev/).
 See [docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md) for the budget controls and deploy notes.
 See [docs/CHATGPT_VALIDATION.md](docs/CHATGPT_VALIDATION.md) for Developer Mode validation.

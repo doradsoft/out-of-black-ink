@@ -3,7 +3,7 @@
 This repository can publish two artifacts:
 
 - Python package: `out-of-black-ink` on PyPI
-- Web package: `@doradsoft/out-of-black-ink-web` on npm
+- TypeScript package: `@doradsoft/out-of-black-ink` on npm
 
 The public web app itself is deployed to GitHub Pages from `apps/web/dist`.
 
@@ -58,17 +58,17 @@ The npm publish workflow reads:
 NPM_TOKEN
 ```
 
-The workflow publishes from `apps/web` with:
+The workflow publishes the TypeScript package with:
 
 ```bash
-npm publish --provenance --access public
+npm publish --workspace @doradsoft/out-of-black-ink --provenance --access public
 ```
 
 Before publishing:
 
 1. Sign in to <https://www.npmjs.com/>.
 2. Ensure you own or create the `@doradsoft` scope.
-3. Create an access token with publish rights for `@doradsoft/out-of-black-ink-web`.
+3. Create an access token with publish rights for `@doradsoft/out-of-black-ink`.
 4. If your npm account uses 2FA, use a token type suitable for automation publishing.
 5. Add the token to GitHub as `NPM_TOKEN`.
 
@@ -79,7 +79,7 @@ OIDC and remove the long-lived `NPM_TOKEN`.
 
 1. Update versions in:
    - `pyproject.toml`
-   - `apps/web/package.json`
+   - `packages/typescript/package.json`
    - `apps/cloudflare-worker/package.json`
 2. Run all checks locally:
 
@@ -87,11 +87,11 @@ OIDC and remove the long-lived `NPM_TOKEN`.
    python -m ruff check .
    python -m pytest
    python -m build
-   cd apps/web
-   npm run check
-   cd ../cloudflare-worker
-   npm run check
-   npm test
+   npm install
+   npm run check:ts
+   npm run check:web
+   npm run check:worker
+   npm run test:worker
    ```
 
 3. Commit and push.
@@ -101,4 +101,4 @@ OIDC and remove the long-lived `NPM_TOKEN`.
 Manual dry runs:
 
 - `Publish` workflow can publish to TestPyPI.
-- `Publish Web Package` workflow can be run manually once `NPM_TOKEN` is available.
+- `Publish TypeScript Package` workflow can be run manually once `NPM_TOKEN` is available.

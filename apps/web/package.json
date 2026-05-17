@@ -1,5 +1,6 @@
 {
   "name": "@doradsoft/out-of-black-ink-web",
+  "private": true,
   "version": "0.1.0",
   "description": "Client-side web app for recoloring black and gray PDF content.",
   "license": "MIT",
@@ -14,30 +15,19 @@
   "bugs": {
     "url": "https://github.com/doradsoft/out-of-black-ink/issues"
   },
-  "files": [
-    "dist",
-    "src",
-    "public",
-    "index.html",
-    "LICENSE",
-    "README.md",
-    "THIRD_PARTY_NOTICES.md"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "vite build",
-    "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build",
+    "check": "npm run prepare:core && npm run lint && npm run typecheck && npm run format:check && npm run build",
     "dev": "vite --host 127.0.0.1",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
+    "prepare:core": "npm run build --workspace @doradsoft/out-of-black-ink",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "tsx --test test/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@doradsoft/out-of-black-ink": "file:../../packages/typescript",
     "jspdf": "^4.2.1",
     "pdfjs-dist": "^4.10.38"
   },
@@ -47,7 +37,6 @@
     "eslint": "^9.39.2",
     "globals": "^16.5.0",
     "prettier": "^3.7.4",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0",
     "vite": "^7.2.7"

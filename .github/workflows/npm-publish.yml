@@ -1,4 +1,4 @@
-name: Publish Web Package
+name: Publish TypeScript Package
 
 on:
   release:
@@ -13,8 +13,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  publish-web:
-    name: Publish web app to npm
+  publish-typescript:
+    name: Publish TypeScript package to npm
     runs-on: ubuntu-latest
     environment:
       name: npm
@@ -29,18 +29,15 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: apps/web
         run: npm ci
 
-      - name: Check web app
-        working-directory: apps/web
-        run: npm run check
+      - name: Check TypeScript package
+        run: npm run check:ts
 
       - name: Publish package
-        working-directory: apps/web
-        run: npm publish --provenance --access public
+        run: npm publish --workspace @doradsoft/out-of-black-ink --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

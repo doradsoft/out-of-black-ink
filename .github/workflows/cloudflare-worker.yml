@@ -5,6 +5,8 @@ on:
     branches: [master]
     paths:
       - apps/cloudflare-worker/**
+      - package.json
+      - package-lock.json
       - .github/workflows/cloudflare-worker.yml
   workflow_dispatch:
 
@@ -28,19 +30,16 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: apps/cloudflare-worker/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: apps/cloudflare-worker
         run: npm ci
 
       - name: Check Worker syntax
-        working-directory: apps/cloudflare-worker
-        run: npm run check
+        run: npm run check:worker
 
       - name: Test Worker
-        working-directory: apps/cloudflare-worker
-        run: npm test
+        run: npm run test:worker
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3

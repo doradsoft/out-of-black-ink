@@ -1,0 +1,52 @@
+{
+  "name": "@doradsoft/out-of-black-ink",
+  "version": "0.1.0",
+  "description": "TypeScript utilities for recoloring black and gray image data to color ink.",
+  "license": "MIT",
+  "author": "Dorad Soft",
+  "type": "module",
+  "homepage": "https://github.com/doradsoft/out-of-black-ink#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doradsoft/out-of-black-ink.git",
+    "directory": "packages/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/doradsoft/out-of-black-ink/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^24.10.0",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0"
+  }
+}

@@ -5,6 +5,9 @@ on:
     branches: [master]
     paths:
       - apps/web/**
+      - packages/typescript/**
+      - package.json
+      - package-lock.json
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -37,15 +40,16 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: apps/web
         run: npm ci
 
+      - name: Check TypeScript package
+        run: npm run check:ts
+
       - name: Check web app
-        working-directory: apps/web
-        run: npm run check
+        run: npm run check:web
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
