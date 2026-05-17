@@ -120,6 +120,11 @@ environments in GitHub before the first release.
 This project can become a ChatGPT App by wrapping the converter in a hosted Apps SDK MCP
 server. See [docs/CHATGPT_APP.md](docs/CHATGPT_APP.md) for the publishing plan.
 
+The Cloudflare Worker deploy scaffold lives in [apps/cloudflare-worker/](apps/cloudflare-worker/).
+It deploys a disabled-by-default endpoint at
+[out-of-black-ink-mcp.doradsoft.workers.dev](https://out-of-black-ink-mcp.doradsoft.workers.dev/).
+See [docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md) for the budget controls and deploy notes.
+
 ## Notes
 
 This tool rasterizes the PDF. The output PDF is image-based, not selectable/searchable text.

@@ -1,0 +1,48 @@
+name: Cloudflare Worker
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - apps/cloudflare-worker/**
+      - .github/workflows/cloudflare-worker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-deploy:
+    name: Test and deploy Worker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/cloudflare-worker/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/cloudflare-worker
+        run: npm ci
+
+      - name: Check Worker syntax
+        working-directory: apps/cloudflare-worker
+        run: npm run check
+
+      - name: Test Worker
+        working-directory: apps/cloudflare-worker
+        run: npm test
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/cloudflare-worker
+          command: deploy

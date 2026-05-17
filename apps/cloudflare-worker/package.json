@@ -1,0 +1,15 @@
+{
+  "name": "out-of-black-ink-cloudflare-worker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Budget-gated Cloudflare Worker edge endpoint for out-of-black-ink.",
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.js",
+    "test": "node --test test/*.test.js",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.51.0"
+  }
+}
