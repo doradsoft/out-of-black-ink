@@ -12,10 +12,24 @@ def main() -> None:
     )
     parser.add_argument("input", help="Input PDF path")
     parser.add_argument("output", help="Output PDF path")
-    parser.add_argument("--color", default=_to_hex(DEFAULT_COLOR), help="Target color, e.g. #0080aa")
+    parser.add_argument(
+        "--color",
+        default=_to_hex(DEFAULT_COLOR),
+        help="Target color, e.g. #0080aa",
+    )
     parser.add_argument("--scale", type=float, default=2.8, help="PDF render scale")
-    parser.add_argument("--threshold", type=int, default=235, help="Brightness threshold for black/gray detection")
-    parser.add_argument("--max-saturation", type=int, default=38, help="Max saturation for neutral gray detection")
+    parser.add_argument(
+        "--threshold",
+        type=int,
+        default=235,
+        help="Brightness threshold for black/gray detection",
+    )
+    parser.add_argument(
+        "--max-saturation",
+        type=int,
+        default=38,
+        help="Max saturation for neutral gray detection",
+    )
     parser.add_argument("--pages", help="Comma-separated 1-based pages, e.g. 1,3,5")
 
     args = parser.parse_args()
@@ -48,7 +62,7 @@ def _parse_hex_color(value: str) -> tuple[int, int, int]:
 
 
 def _to_hex(color: tuple[int, int, int]) -> str:
-    return "#%02x%02x%02x" % color
+    return f"#{color[0]:02x}{color[1]:02x}{color[2]:02x}"
 
 
 if __name__ == "__main__":

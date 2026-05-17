@@ -4,8 +4,8 @@ from collections.abc import Iterable
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, JpegImagePlugin  # noqa: F401 - registers JPEG PDF writer
 import pypdfium2 as pdfium
+from PIL import Image, JpegImagePlugin  # noqa: F401 - registers JPEG PDF writer
 
 Color = tuple[int, int, int]
 
@@ -38,7 +38,14 @@ def convert_pdf(
             page = pdf[page_index]
             try:
                 img = page.render(scale=scale).to_pil().convert("RGB")
-                rendered.append(recolor_image(img, color=color, threshold=threshold, max_saturation=max_saturation))
+                rendered.append(
+                    recolor_image(
+                        img,
+                        color=color,
+                        threshold=threshold,
+                        max_saturation=max_saturation,
+                    )
+                )
             finally:
                 page.close()
     finally:
