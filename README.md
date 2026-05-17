@@ -126,6 +126,7 @@ The Cloudflare Worker deploy scaffold lives in [apps/cloudflare-worker/](apps/cl
 It deploys a disabled-by-default endpoint at
 [out-of-black-ink-mcp.doradsoft.workers.dev](https://out-of-black-ink-mcp.doradsoft.workers.dev/).
 See [docs/CLOUDFLARE_WORKER.md](docs/CLOUDFLARE_WORKER.md) for the budget controls and deploy notes.
+See [docs/CHATGPT_VALIDATION.md](docs/CHATGPT_VALIDATION.md) for Developer Mode validation.
 
 ## Notes
 

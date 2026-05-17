@@ -1,20 +1,21 @@
 # ChatGPT App Publishing Plan
 
-`out-of-black-ink` is currently a Python package and CLI. Publishing it as a ChatGPT App
-requires a hosted Apps SDK integration around that converter.
+`out-of-black-ink` is currently a Python package, a client-side web app, and a free
+Cloudflare Worker MCP endpoint for ChatGPT Developer Mode.
 
-GitHub Pages can host the static browser app in this repository, but it cannot host the
-ChatGPT App MCP server. The MCP server needs a backend that can receive tool calls at a
-public HTTPS endpoint.
+The current free ChatGPT App path does not run PDF conversion on the server. The Cloudflare
+Worker exposes the MCP endpoint and a ChatGPT widget that opens the GitHub Pages converter.
+PDF conversion remains client-side in the user's browser.
 
 ## Current Best Fit
 
-The first ChatGPT App version should expose a document conversion workflow:
+The first ChatGPT App version exposes a launch workflow:
 
-1. User uploads a PDF in ChatGPT.
-2. The app lets the user choose ink color, page range, render scale, threshold, and saturation.
-3. The app converts the PDF using `out_of_black_ink.convert_pdf`.
-4. The app returns a converted PDF for download.
+1. User asks ChatGPT to open the PDF recolor app.
+2. ChatGPT calls `open_pdf_recolor_app`.
+3. The app renders a small widget.
+4. The widget opens the GitHub Pages converter.
+5. The user chooses a PDF locally in the browser and converts it without uploading it.
 
 ## Apps SDK Requirements
 
@@ -31,42 +32,58 @@ Useful OpenAI docs:
 - MCP server concept: <https://developers.openai.com/apps-sdk/concepts/mcp-server>
 - Deploy guide: <https://developers.openai.com/apps-sdk/deploy>
 
-## Suggested App Tools
+## Live Developer Endpoint
 
-Start with one tool:
+Use this URL in ChatGPT Developer Mode:
 
 ```text
-convert_pdf_to_color_ink
+https://out-of-black-ink-mcp.doradsoft.workers.dev/mcp
 ```
 
-Inputs:
+Current tool:
 
-- `input_pdf`: uploaded PDF file
-- `color`: target color in `#RRGGBB` format
-- `pages`: optional comma-separated 1-based pages
-- `scale`: render scale, default `2.8`
-- `threshold`: brightness threshold, default `235`
-- `max_saturation`: neutral gray saturation limit, default `38`
+- `open_pdf_recolor_app`: opens the free client-side converter.
 
-Output:
+Current widget:
 
-- Converted PDF file
-- Short conversion summary, including page count and options used
+- `ui://widget/out-of-black-ink.html`
+- MIME type: `text/html;profile=mcp-app`
+- Privacy policy: <https://doradsoft.github.io/out-of-black-ink/privacy.html>
+
+## Validation
+
+1. In ChatGPT, open `Settings > Apps & Connectors > Advanced settings`.
+2. Enable Developer Mode.
+3. Go to `Settings > Connectors`.
+4. Create a connector with:
+
+   ```text
+   https://out-of-black-ink-mcp.doradsoft.workers.dev/mcp
+   ```
+
+5. In a new chat, ask:
+
+   ```text
+   Open the out-of-black-ink PDF recolor app.
+   ```
+
+Expected result: ChatGPT should discover the app, call `open_pdf_recolor_app`, and render the
+widget with an `Open converter` button.
 
 ## Review Readiness Checklist
 
 - Keep the app focused on one clear job: recolor black and gray PDF content for printing.
-- Make file handling explicit: PDFs are processed only to create the converted output.
-- Return clear errors for encrypted, corrupted, or unsupported PDFs.
-- Add size and page-count limits before public launch.
-- Host the MCP server behind HTTPS with logs and metrics.
-- Test the connector in ChatGPT after every metadata or tool-schema change.
+- Make file handling explicit: the free version processes PDFs in the user's browser.
+- Keep the MCP server free of PDF processing until hard backend quotas exist.
+- Host the MCP server behind HTTPS.
+- Test the connector in ChatGPT after every metadata, tool-schema, or widget change.
+- Keep the privacy policy up to date.
 
 ## Repository Follow-Up
 
-Recommended implementation path:
+Future server-side conversion path:
 
-1. Add `apps/chatgpt/` with an MCP server wrapper around this Python package.
-2. Add a minimal web component only if the file/options workflow feels better with UI controls.
-3. Deploy the MCP endpoint to a host with reliable streaming support.
-4. Connect it from ChatGPT, test with sample PDFs, then submit through the Apps SDK flow.
+1. Add a backend with a fixed monthly cost and autoscaling disabled.
+2. Put the Cloudflare Worker in front as the quota gate.
+3. Add authentication or per-user quotas.
+4. Add a server-side `convert_pdf_to_color_ink` tool only after cost controls are enforced.

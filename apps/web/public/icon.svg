@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">out-of-black-ink icon</title>
+  <desc id="desc">A blue PDF page with a color ink drop.</desc>
+  <rect width="512" height="512" rx="96" fill="#f5f7f4"/>
+  <path d="M156 88h144l72 72v264H156z" fill="#fff" stroke="#172026" stroke-width="20" stroke-linejoin="round"/>
+  <path d="M300 88v72h72" fill="#dce8e2" stroke="#172026" stroke-width="20" stroke-linejoin="round"/>
+  <path d="M256 214c34 42 72 94 72 132 0 43-33 78-72 78s-72-35-72-78c0-38 38-90 72-132z" fill="#0078aa"/>
+  <path d="M226 348c0 20 14 36 32 36" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+</svg>

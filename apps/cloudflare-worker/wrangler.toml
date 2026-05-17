@@ -4,7 +4,7 @@ compatibility_date = "2026-05-17"
 workers_dev = true
 
 [vars]
-APP_DISABLED = "true"
+APP_DISABLED = "false"
 MAX_BODY_BYTES = "1048576"
 MAX_PDF_BYTES = "10485760"
 MAX_PAGES = "20"

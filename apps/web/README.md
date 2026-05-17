@@ -22,3 +22,9 @@ npm run build
 ```
 
 The built site is written to `dist/` and deployed to GitHub Pages by the Pages workflow.
+
+Privacy policy:
+
+```text
+https://doradsoft.github.io/out-of-black-ink/privacy.html
+```
