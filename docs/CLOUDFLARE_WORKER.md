@@ -33,11 +33,14 @@ The Worker currently enforces cheap request-level limits:
 - `MAX_BODY_BYTES`: `32768`
 - `MAX_PDF_BYTES`: `10485760`
 - `MAX_PAGES`: `20`
-- `[limits].cpu_ms`: `10`
 
 These are exposed in `/health` and shown in the ChatGPT widget. For future server-side PDF
 conversion, keep Cloudflare as the gate and send accepted jobs to a fixed-size backend with
 autoscaling disabled.
+
+Cloudflare Workers Free already applies a platform CPU limit. If this Worker is ever moved to
+Workers Paid, add a low `[limits].cpu_ms` value in `wrangler.toml` or in the Cloudflare dashboard
+before enabling any server-side conversion path.
 
 ## GitHub Secrets
 
