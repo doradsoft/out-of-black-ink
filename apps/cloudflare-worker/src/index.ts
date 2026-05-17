@@ -32,7 +32,7 @@ const JSON_HEADERS: HeadersInit = {
 };
 
 const DEFAULT_LIMITS = {
-  maxBodyBytes: 1024 * 1024,
+  maxBodyBytes: 32 * 1024,
   maxPdfBytes: 10 * 1024 * 1024,
   maxPages: 20,
 };
@@ -69,6 +69,47 @@ const readConfig = (env: Env = {}): Config => ({
   maxPdfBytes: readNumber(env.MAX_PDF_BYTES, DEFAULT_LIMITS.maxPdfBytes),
   maxPages: readNumber(env.MAX_PAGES, DEFAULT_LIMITS.maxPages),
 });
+
+const readLimitedText = async (request: Request, maxBytes: number): Promise<string | null> => {
+  const contentLength = Number.parseInt(request.headers.get("content-length") ?? "0", 10);
+  if (contentLength > maxBytes) {
+    return null;
+  }
+
+  if (!request.body) {
+    return "";
+  }
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    if (!value) {
+      continue;
+    }
+
+    totalBytes += value.byteLength;
+    if (totalBytes > maxBytes) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(bytes);
+};
 
 const publicStatus = (config: Config) => ({
   service: "out-of-black-ink-mcp",
@@ -413,8 +454,8 @@ const handleRpc = (payload: JsonRpcPayload, config: Config): Response => {
 };
 
 const handleMcp = async (request: Request, config: Config): Promise<Response> => {
-  const contentLength = Number.parseInt(request.headers.get("content-length") ?? "0", 10);
-  if (contentLength > config.maxBodyBytes) {
+  const body = await readLimitedText(request, config.maxBodyBytes);
+  if (body === null) {
     return json(
       {
         error: "request_too_large",
@@ -426,7 +467,7 @@ const handleMcp = async (request: Request, config: Config): Promise<Response> =>
 
   let payload;
   try {
-    payload = (await request.json()) as JsonRpcPayload;
+    payload = JSON.parse(body) as JsonRpcPayload;
   } catch {
     return rpcError(null, -32700, "Invalid JSON.");
   }

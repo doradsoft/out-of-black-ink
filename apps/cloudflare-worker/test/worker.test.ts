@@ -40,6 +40,34 @@ test("mcp endpoint can still be disabled with APP_DISABLED", async () => {
   assert.equal(body.error, "service_disabled");
 });
 
+test("mcp endpoint rejects oversized chunked request bodies", async () => {
+  const body = JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: { padding: "x".repeat(256) },
+  });
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(body));
+      controller.close();
+    },
+  });
+  const response = await fetchWorker(
+    request("/mcp", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: stream,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" }),
+    { APP_DISABLED: "false", MAX_BODY_BYTES: "64" },
+  );
+  const payload = await response.json();
+
+  assert.equal(response.status, 413);
+  assert.equal(payload.error, "request_too_large");
+});
+
 test("mcp initialize works when explicitly enabled", async () => {
   const response = await fetchWorker(rpc("initialize"), { APP_DISABLED: "false" });
   const body = await response.json();
