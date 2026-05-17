@@ -31,3 +31,15 @@ Privacy policy:
 ```text
 https://doradsoft.github.io/out-of-black-ink/privacy.html
 ```
+
+Terms of service:
+
+```text
+https://doradsoft.github.io/out-of-black-ink/terms.html
+```
+
+ChatGPT App demo recording:
+
+```text
+https://doradsoft.github.io/out-of-black-ink/demo.mp4
+```
