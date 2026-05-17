@@ -32,6 +32,14 @@ test("health endpoint reports ready when enabled", async () => {
   assert.equal(body.appUrl, "https://doradsoft.github.io/out-of-black-ink/");
 });
 
+test("serves OpenAI Apps domain verification challenge", async () => {
+  const response = await fetchWorker(request("/.well-known/openai-apps-challenge"));
+
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "QA_jrKd1qgD89vMtgC6uCO2desrkrL6t_KVaJfZHysE");
+  assert.match(response.headers.get("content-type") ?? "", /^text\/plain/);
+});
+
 test("mcp endpoint can still be disabled with APP_DISABLED", async () => {
   const response = await fetchWorker(rpc("initialize"), { APP_DISABLED: "true" });
   const body = await response.json();

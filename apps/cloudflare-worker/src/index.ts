@@ -1,6 +1,8 @@
 const APP_URL = "https://doradsoft.github.io/out-of-black-ink/";
+const OPENAI_APPS_CHALLENGE_TOKEN = "QA_jrKd1qgD89vMtgC6uCO2desrkrL6t_KVaJfZHysE";
 const WIDGET_URI = "ui://widget/out-of-black-ink.html";
 const WIDGET_PATH = "/widget/out-of-black-ink.html";
+const OPENAI_APPS_CHALLENGE_PATH = "/.well-known/openai-apps-challenge";
 
 type Env = {
   APP_DISABLED?: string;
@@ -54,6 +56,17 @@ const html = (body: string, init: ResponseInit = {}): Response =>
       "access-control-allow-origin": "*",
       "cache-control": "public, max-age=300",
       "content-type": "text/html; charset=utf-8",
+      ...(init.headers ?? {}),
+    },
+  });
+
+const text = (body: string, init: ResponseInit = {}): Response =>
+  new Response(body, {
+    ...init,
+    headers: {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-store",
+      "content-type": "text/plain; charset=utf-8",
       ...(init.headers ?? {}),
     },
   });
@@ -486,6 +499,10 @@ export default {
 
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) {
       return json(publicStatus(config));
+    }
+
+    if (request.method === "GET" && url.pathname === OPENAI_APPS_CHALLENGE_PATH) {
+      return text(OPENAI_APPS_CHALLENGE_TOKEN);
     }
 
     if (request.method === "GET" && url.pathname === WIDGET_PATH) {
