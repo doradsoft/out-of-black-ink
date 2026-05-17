@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/doradsoft/out-of-black-ink/actions/workflows/ci.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/ci.yml)
 [![Publish](https://github.com/doradsoft/out-of-black-ink/actions/workflows/publish.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/publish.yml)
+[![Web app](https://img.shields.io/badge/web_app-open-0078aa)](https://doradsoft.github.io/out-of-black-ink/)
 [![PyPI](https://img.shields.io/pypi/v/out-of-black-ink.svg)](https://pypi.org/project/out-of-black-ink/)
 [![Python versions](https://img.shields.io/pypi/pyversions/out-of-black-ink.svg)](https://pypi.org/project/out-of-black-ink/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -98,11 +99,7 @@ More command examples live in [examples/](examples/).
 There is also a client-side web version in [docs/](docs/). It runs entirely in the
 browser with PDF.js and jsPDF, so PDFs do not need to be uploaded to a server.
 
-GitHub Pages can host this static app at:
-
-```text
-https://doradsoft.github.io/out-of-black-ink/
-```
+Open it here: [doradsoft.github.io/out-of-black-ink](https://doradsoft.github.io/out-of-black-ink/).
 
 The browser app is intentionally separate from the Python package. It uses the same recoloring
 approach, but does not import or run the Python package.
