@@ -80,6 +80,7 @@ OIDC and remove the long-lived `NPM_TOKEN`.
 1. Update versions in:
    - `pyproject.toml`
    - `apps/web/package.json`
+   - `apps/cloudflare-worker/package.json`
 2. Run all checks locally:
 
    ```bash
@@ -88,6 +89,9 @@ OIDC and remove the long-lived `NPM_TOKEN`.
    python -m build
    cd apps/web
    npm run check
+   cd ../cloudflare-worker
+   npm run check
+   npm test
    ```
 
 3. Commit and push.

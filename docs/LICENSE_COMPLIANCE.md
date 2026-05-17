@@ -6,7 +6,7 @@ The repository is MIT licensed.
 
 - Python package: MIT, see `LICENSE`.
 - Web app: MIT, see `apps/web/LICENSE`.
-- Cloudflare Worker scaffold: covered by the repository MIT license.
+- Cloudflare Worker MCP endpoint: covered by the repository MIT license.
 
 ## Direct Runtime Dependencies
 

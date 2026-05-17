@@ -3,13 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "description": "Budget-gated Cloudflare Worker edge endpoint for out-of-black-ink.",
+  "license": "MIT",
+  "author": "Dorad Soft",
   "type": "module",
   "scripts": {
-    "check": "node --check src/index.js",
-    "test": "node --test test/*.test.js",
+    "check": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "wrangler": "^4.51.0"
   }
 }

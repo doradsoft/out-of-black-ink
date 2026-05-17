@@ -32,3 +32,9 @@ python -m build
 
 Keep image tests small and deterministic. Prefer asserting exact pixel output for tiny in-memory
 images over checking generated PDF bytes, which can vary across dependency versions.
+
+## Repository Layout
+
+- `packages/python/`: Python package source, tests, and examples.
+- `apps/web/`: TypeScript web app deployed to GitHub Pages.
+- `apps/cloudflare-worker/`: TypeScript Cloudflare Worker used as the ChatGPT MCP endpoint.

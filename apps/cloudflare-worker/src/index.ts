@@ -2,7 +2,29 @@ const APP_URL = "https://doradsoft.github.io/out-of-black-ink/";
 const WIDGET_URI = "ui://widget/out-of-black-ink.html";
 const WIDGET_PATH = "/widget/out-of-black-ink.html";
 
-const JSON_HEADERS = {
+type Env = {
+  APP_DISABLED?: string;
+  MAX_BODY_BYTES?: string;
+  MAX_PAGES?: string;
+  MAX_PDF_BYTES?: string;
+};
+
+type Config = {
+  disabled: boolean;
+  maxBodyBytes: number;
+  maxPages: number;
+  maxPdfBytes: number;
+};
+
+type JsonRpcPayload = {
+  id?: number | string | null;
+  method?: string;
+  params?: Record<string, unknown>;
+};
+
+type JsonRpcId = number | string | null;
+
+const JSON_HEADERS: HeadersInit = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET,POST,OPTIONS",
   "access-control-allow-headers": "authorization,content-type,mcp-protocol-version",
@@ -15,7 +37,7 @@ const DEFAULT_LIMITS = {
   maxPages: 20,
 };
 
-const json = (body, init = {}) =>
+const json = (body: unknown, init: ResponseInit = {}): Response =>
   new Response(JSON.stringify(body, null, 2), {
     ...init,
     headers: {
@@ -25,7 +47,7 @@ const json = (body, init = {}) =>
     },
   });
 
-const html = (body, init = {}) =>
+const html = (body: string, init: ResponseInit = {}): Response =>
   new Response(body, {
     ...init,
     headers: {
@@ -36,19 +58,19 @@ const html = (body, init = {}) =>
     },
   });
 
-const readNumber = (value, fallback) => {
+const readNumber = (value: string | undefined, fallback: number): number => {
   const parsed = Number.parseInt(value ?? "", 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-const readConfig = (env = {}) => ({
+const readConfig = (env: Env = {}): Config => ({
   disabled: env.APP_DISABLED === "true",
   maxBodyBytes: readNumber(env.MAX_BODY_BYTES, DEFAULT_LIMITS.maxBodyBytes),
   maxPdfBytes: readNumber(env.MAX_PDF_BYTES, DEFAULT_LIMITS.maxPdfBytes),
   maxPages: readNumber(env.MAX_PAGES, DEFAULT_LIMITS.maxPages),
 });
 
-const publicStatus = (config) => ({
+const publicStatus = (config: Config) => ({
   service: "out-of-black-ink-mcp",
   status: config.disabled ? "disabled" : "ready",
   appUrl: APP_URL,
@@ -61,14 +83,14 @@ const publicStatus = (config) => ({
   },
 });
 
-const rpcResult = (id, result) =>
+const rpcResult = (id: JsonRpcId, result: unknown): Response =>
   json({
     jsonrpc: "2.0",
     id,
     result,
   });
 
-const rpcError = (id, code, message) =>
+const rpcError = (id: JsonRpcId, code: number, message: string): Response =>
   json(
     {
       jsonrpc: "2.0",
@@ -81,7 +103,7 @@ const rpcError = (id, code, message) =>
     { status: code === -32700 ? 400 : 200 },
   );
 
-const openConverterTool = (config) => ({
+const openConverterTool = () => ({
   name: "open_pdf_recolor_app",
   title: "Open PDF recolor app",
   description:
@@ -120,19 +142,19 @@ const openConverterTool = (config) => ({
   securitySchemes: [{ type: "noauth" }],
 });
 
-const toolsList = (config) => ({
+const toolsList = () => ({
   tools: [
     {
-      ...openConverterTool(config),
+      ...openConverterTool(),
       _meta: {
-        ...openConverterTool(config)._meta,
+        ...openConverterTool()._meta,
         securitySchemes: [{ type: "noauth" }],
       },
     },
   ],
 });
 
-const widgetHtml = (config) => `<!doctype html>
+const widgetHtml = (config: Config): string => `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -245,7 +267,7 @@ const widgetHtml = (config) => `<!doctype html>
   </body>
 </html>`;
 
-const widgetResource = (config) => ({
+const widgetResource = (config: Config) => ({
   contents: [
     {
       uri: WIDGET_URI,
@@ -275,7 +297,7 @@ const widgetResource = (config) => ({
   ],
 });
 
-const callOpenConverter = (id, config) => {
+const callOpenConverter = (id: JsonRpcId, config: Config): Response => {
   const structuredContent = {
     status: "ready",
     appUrl: APP_URL,
@@ -303,7 +325,7 @@ const callOpenConverter = (id, config) => {
   });
 };
 
-const handleRpc = async (payload, config) => {
+const handleRpc = (payload: JsonRpcPayload, config: Config): Response => {
   const { id = null, method, params = {} } = payload;
 
   if (method === "notifications/initialized") {
@@ -322,7 +344,10 @@ const handleRpc = async (payload, config) => {
 
   if (method === "initialize") {
     return rpcResult(id, {
-      protocolVersion: params.protocolVersion ?? "2024-11-05",
+      protocolVersion:
+        typeof params.protocolVersion === "string"
+          ? params.protocolVersion
+          : "2024-11-05",
       capabilities: {
         tools: {},
         resources: {},
@@ -339,7 +364,7 @@ const handleRpc = async (payload, config) => {
   }
 
   if (method === "tools/list") {
-    return rpcResult(id, toolsList(config));
+    return rpcResult(id, toolsList());
   }
 
   if (method === "resources/list") {
@@ -387,7 +412,7 @@ const handleRpc = async (payload, config) => {
   return rpcError(id, -32601, `Unsupported MCP method: ${method}`);
 };
 
-const handleMcp = async (request, config) => {
+const handleMcp = async (request: Request, config: Config): Promise<Response> => {
   const contentLength = Number.parseInt(request.headers.get("content-length") ?? "0", 10);
   if (contentLength > config.maxBodyBytes) {
     return json(
@@ -401,7 +426,7 @@ const handleMcp = async (request, config) => {
 
   let payload;
   try {
-    payload = await request.json();
+    payload = (await request.json()) as JsonRpcPayload;
   } catch {
     return rpcError(null, -32700, "Invalid JSON.");
   }
@@ -410,7 +435,7 @@ const handleMcp = async (request, config) => {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const config = readConfig(env);
     const url = new URL(request.url);
 

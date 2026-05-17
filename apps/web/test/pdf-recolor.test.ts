@@ -5,19 +5,30 @@ import {
   hexToRgb,
   normalizeHexColor,
   parsePages,
+  type RgbColor,
   recolorImageData,
 } from "../src/pdf-recolor.js";
 
-const imageData = (pixels) => ({
-  data: new Uint8ClampedArray(
-    pixels.flatMap(([red, green, blue]) => [red, green, blue, 255]),
-  ),
-});
+const imageData = (pixels: RgbColor[]): ImageData =>
+  ({
+    data: new Uint8ClampedArray(
+      pixels.flatMap(([red, green, blue]) => [red, green, blue, 255]),
+    ),
+    height: 1,
+    width: pixels.length,
+    colorSpace: "srgb",
+  }) as ImageData;
 
-const pixels = (data) => {
-  const output = [];
+const pixels = (data: Uint8ClampedArray): RgbColor[] => {
+  const output: RgbColor[] = [];
   for (let index = 0; index < data.length; index += 4) {
-    output.push([data[index], data[index + 1], data[index + 2]]);
+    const red = data[index];
+    const green = data[index + 1];
+    const blue = data[index + 2];
+    if (red === undefined || green === undefined || blue === undefined) {
+      continue;
+    }
+    output.push([red, green, blue]);
   }
   return output;
 };

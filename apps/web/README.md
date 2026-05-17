@@ -1,6 +1,6 @@
 # out-of-black-ink web app
 
-Client-side browser app for recoloring black and gray PDF content.
+TypeScript client-side browser app for recoloring black and gray PDF content.
 
 ## Development
 

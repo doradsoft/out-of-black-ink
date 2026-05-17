@@ -3,9 +3,19 @@ import test from "node:test";
 
 import worker from "../src/index.js";
 
-const request = (path, init = {}) => new Request(`https://example.com${path}`, init);
+type TestEnv = {
+  APP_DISABLED?: string;
+};
 
-const rpc = (method, params = {}, id = 1) =>
+type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
+
+const request = (path: string, init: RequestInit = {}): Request =>
+  new Request(`https://example.com${path}`, init);
+
+const fetchWorker = (request: Request, env: TestEnv = {}): Promise<Response> =>
+  worker.fetch(request, env);
+
+const rpc = (method: string, params: Record<string, JsonValue> = {}, id = 1): Request =>
   request("/mcp", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -13,7 +23,7 @@ const rpc = (method, params = {}, id = 1) =>
   });
 
 test("health endpoint reports ready when enabled", async () => {
-  const response = await worker.fetch(request("/health"), { APP_DISABLED: "false" });
+  const response = await fetchWorker(request("/health"), { APP_DISABLED: "false" });
   const body = await response.json();
 
   assert.equal(response.status, 200);
@@ -23,7 +33,7 @@ test("health endpoint reports ready when enabled", async () => {
 });
 
 test("mcp endpoint can still be disabled with APP_DISABLED", async () => {
-  const response = await worker.fetch(rpc("initialize"), { APP_DISABLED: "true" });
+  const response = await fetchWorker(rpc("initialize"), { APP_DISABLED: "true" });
   const body = await response.json();
 
   assert.equal(response.status, 503);
@@ -31,7 +41,7 @@ test("mcp endpoint can still be disabled with APP_DISABLED", async () => {
 });
 
 test("mcp initialize works when explicitly enabled", async () => {
-  const response = await worker.fetch(rpc("initialize"), { APP_DISABLED: "false" });
+  const response = await fetchWorker(rpc("initialize"), { APP_DISABLED: "false" });
   const body = await response.json();
 
   assert.equal(response.status, 200);
@@ -40,7 +50,7 @@ test("mcp initialize works when explicitly enabled", async () => {
 });
 
 test("tools list advertises ChatGPT app metadata", async () => {
-  const response = await worker.fetch(rpc("tools/list"), { APP_DISABLED: "false" });
+  const response = await fetchWorker(rpc("tools/list"), { APP_DISABLED: "false" });
   const body = await response.json();
   const [tool] = body.result.tools;
 
@@ -51,7 +61,7 @@ test("tools list advertises ChatGPT app metadata", async () => {
 });
 
 test("resources read returns an MCP app widget", async () => {
-  const response = await worker.fetch(
+  const response = await fetchWorker(
     rpc("resources/read", { uri: "ui://widget/out-of-black-ink.html" }),
     { APP_DISABLED: "false" },
   );
@@ -64,7 +74,7 @@ test("resources read returns an MCP app widget", async () => {
 });
 
 test("open app tool call returns the public app URL", async () => {
-  const response = await worker.fetch(
+  const response = await fetchWorker(
     rpc("tools/call", { name: "open_pdf_recolor_app", arguments: {} }),
     { APP_DISABLED: "false" },
   );

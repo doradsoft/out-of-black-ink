@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 
 import pytest
-
 from out_of_black_ink.cli import _parse_hex_color, _parse_pages, _to_hex
 
 

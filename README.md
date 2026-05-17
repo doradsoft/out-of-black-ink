@@ -1,6 +1,8 @@
 # out-of-black-ink
 
 [![CI](https://github.com/doradsoft/out-of-black-ink/actions/workflows/ci.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/ci.yml)
+[![Pages](https://github.com/doradsoft/out-of-black-ink/actions/workflows/pages.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/pages.yml)
+[![Cloudflare Worker](https://github.com/doradsoft/out-of-black-ink/actions/workflows/cloudflare-worker.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/cloudflare-worker.yml)
 [![Publish](https://github.com/doradsoft/out-of-black-ink/actions/workflows/publish.yml/badge.svg)](https://github.com/doradsoft/out-of-black-ink/actions/workflows/publish.yml)
 [![Web app](https://img.shields.io/badge/web_app-open-0078aa)](https://doradsoft.github.io/out-of-black-ink/)
 [![PyPI](https://img.shields.io/pypi/v/out-of-black-ink.svg)](https://pypi.org/project/out-of-black-ink/)
@@ -9,6 +11,12 @@
 
 Convert black/gray PDF content into colored ink-friendly output.
 Useful when your black cartridge is empty but color ink still works.
+
+## Repository Layout
+
+- [packages/python/](packages/python/) contains the Python package, tests, and examples.
+- [apps/web/](apps/web/) contains the TypeScript browser app deployed to GitHub Pages.
+- [apps/cloudflare-worker/](apps/cloudflare-worker/) contains the TypeScript ChatGPT MCP endpoint.
 
 ## What it does
 
@@ -94,7 +102,7 @@ npm run check
 
 The CI pipeline runs these checks on Python 3.9 through 3.14.
 
-More command examples live in [examples/](examples/).
+More command examples live in [packages/python/examples/](packages/python/examples/).
 
 ## Browser App
 

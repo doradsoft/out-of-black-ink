@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import type { PDFPageProxy } from "pdfjs-dist";
 import * as pdfjs from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -12,23 +13,44 @@ import "./styles.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
-const fileInput = document.querySelector("#pdf-file");
-const dropzone = document.querySelector("#dropzone");
-const fileName = document.querySelector("#file-name");
-const form = document.querySelector("#settings-form");
-const convertButton = document.querySelector("#convert-button");
-const statusText = document.querySelector("#status");
-const progress = document.querySelector("#progress");
-const colorInput = document.querySelector("#ink-color");
-const colorText = document.querySelector("#ink-color-text");
-const scaleInput = document.querySelector("#scale");
-const thresholdInput = document.querySelector("#threshold");
-const saturationInput = document.querySelector("#saturation");
-const pagesInput = document.querySelector("#pages");
+import type { RgbColor } from "./pdf-recolor.js";
 
-let selectedFile = null;
+const mustQuery = <ElementType extends Element>(
+  selector: string,
+): ElementType => {
+  const element = document.querySelector<ElementType>(selector);
+  if (!element) {
+    throw new Error(`Missing required element: ${selector}`);
+  }
+  return element;
+};
 
-const setStatus = (message, progressValue = null) => {
+type RecoloredPage = {
+  height: number;
+  image: string;
+  width: number;
+};
+
+const fileInput = mustQuery<HTMLInputElement>("#pdf-file");
+const dropzone = mustQuery<HTMLLabelElement>("#dropzone");
+const fileName = mustQuery<HTMLParagraphElement>("#file-name");
+const form = mustQuery<HTMLFormElement>("#settings-form");
+const convertButton = mustQuery<HTMLButtonElement>("#convert-button");
+const statusText = mustQuery<HTMLParagraphElement>("#status");
+const progress = mustQuery<HTMLProgressElement>("#progress");
+const colorInput = mustQuery<HTMLInputElement>("#ink-color");
+const colorText = mustQuery<HTMLInputElement>("#ink-color-text");
+const scaleInput = mustQuery<HTMLInputElement>("#scale");
+const thresholdInput = mustQuery<HTMLInputElement>("#threshold");
+const saturationInput = mustQuery<HTMLInputElement>("#saturation");
+const pagesInput = mustQuery<HTMLInputElement>("#pages");
+
+let selectedFile: File | null = null;
+
+const setStatus = (
+  message: string,
+  progressValue: number | null = null,
+): void => {
   statusText.textContent = message;
   if (progressValue === null) {
     progress.hidden = true;
@@ -39,7 +61,7 @@ const setStatus = (message, progressValue = null) => {
   progress.value = progressValue;
 };
 
-const setSelectedFile = (file) => {
+const setSelectedFile = (file: File | null): void => {
   selectedFile = file;
   fileName.textContent = file ? file.name : "No file selected";
   convertButton.disabled = !file;
@@ -62,10 +84,19 @@ const renderRecoloredPage = async ({
   targetColor,
   threshold,
   maxSaturation,
-}) => {
+}: {
+  maxSaturation: number;
+  page: PDFPageProxy;
+  renderScale: number;
+  targetColor: RgbColor;
+  threshold: number;
+}): Promise<RecoloredPage> => {
   const viewport = page.getViewport({ scale: renderScale });
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) {
+    throw new Error("Canvas rendering is not supported in this browser.");
+  }
   canvas.width = Math.ceil(viewport.width);
   canvas.height = Math.ceil(viewport.height);
 
@@ -84,7 +115,10 @@ const renderRecoloredPage = async ({
   };
 };
 
-const addPageToPdf = (outputPdf, pageImage) => {
+const addPageToPdf = (
+  outputPdf: InstanceType<typeof jsPDF> | null,
+  pageImage: RecoloredPage,
+): InstanceType<typeof jsPDF> => {
   const orientation =
     pageImage.width > pageImage.height ? "landscape" : "portrait";
   const nextPdf =
@@ -110,7 +144,7 @@ const addPageToPdf = (outputPdf, pageImage) => {
   return nextPdf;
 };
 
-const convertPdf = async () => {
+const convertPdf = async (): Promise<void> => {
   if (!selectedFile) {
     return;
   }
@@ -122,10 +156,9 @@ const convertPdf = async () => {
   const bytes = await selectedFile.arrayBuffer();
   const pdf = await pdfjs.getDocument({ data: bytes }).promise;
   const selectedPages = parsePages(pagesInput.value, pdf.numPages);
-  let outputPdf = null;
+  let outputPdf: InstanceType<typeof jsPDF> | null = null;
 
-  for (let pageIndex = 0; pageIndex < selectedPages.length; pageIndex += 1) {
-    const pageNumber = selectedPages[pageIndex];
+  for (const [pageIndex, pageNumber] of selectedPages.entries()) {
     setStatus(
       `Rendering page ${pageIndex + 1} of ${selectedPages.length}...`,
       pageIndex / selectedPages.length,
@@ -143,6 +176,9 @@ const convertPdf = async () => {
   }
 
   const baseName = selectedFile.name.replace(/\.pdf$/i, "");
+  if (!outputPdf) {
+    throw new Error("No pages selected.");
+  }
   outputPdf.save(`${baseName}-color-ink.pdf`);
   setStatus(
     `Converted ${selectedPages.length} page${selectedPages.length === 1 ? "" : "s"}.`,
@@ -165,12 +201,18 @@ dropzone.addEventListener("dragleave", () => {
 dropzone.addEventListener("drop", (event) => {
   event.preventDefault();
   dropzone.classList.remove("is-dragging");
-  const file = event.dataTransfer.files?.[0];
+  const transfer = event.dataTransfer;
+  if (!transfer) {
+    setStatus("Please choose a PDF file.");
+    return;
+  }
+
+  const file = transfer.files?.[0];
   if (
     file?.type === "application/pdf" ||
     file?.name.toLowerCase().endsWith(".pdf")
   ) {
-    fileInput.files = event.dataTransfer.files;
+    fileInput.files = transfer.files;
     setSelectedFile(file);
   } else {
     setStatus("Please choose a PDF file.");
@@ -183,20 +225,21 @@ colorText.addEventListener("change", () => {
     syncColorInput();
     setStatus(selectedFile ? "Ready to convert." : "Select a PDF to begin.");
   } catch (error) {
-    setStatus(error.message);
+    setStatus(error instanceof Error ? error.message : "Invalid color.");
   }
 });
 
 scaleInput.addEventListener("input", () => {
-  document.querySelector("#scale-value").textContent = scaleInput.value;
+  mustQuery<HTMLOutputElement>("#scale-value").textContent = scaleInput.value;
 });
 
 thresholdInput.addEventListener("input", () => {
-  document.querySelector("#threshold-value").textContent = thresholdInput.value;
+  mustQuery<HTMLOutputElement>("#threshold-value").textContent =
+    thresholdInput.value;
 });
 
 saturationInput.addEventListener("input", () => {
-  document.querySelector("#saturation-value").textContent =
+  mustQuery<HTMLOutputElement>("#saturation-value").textContent =
     saturationInput.value;
 });
 
@@ -206,7 +249,7 @@ form.addEventListener("submit", async (event) => {
   try {
     await convertPdf();
   } catch (error) {
-    setStatus(error.message || "Conversion failed.");
+    setStatus(error instanceof Error ? error.message : "Conversion failed.");
   } finally {
     convertButton.disabled = !selectedFile;
   }

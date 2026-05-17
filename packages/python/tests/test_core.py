@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from PIL import Image
-
 from out_of_black_ink.core import DEFAULT_COLOR, _normalize_pages, recolor_image
+from PIL import Image
 
 
 def _pixels(image: Image.Image) -> list[tuple[int, int, int]]:
