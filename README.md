@@ -88,6 +88,8 @@ Run the local quality checks:
 python -m ruff check .
 python -m pytest
 python -m build
+cd apps/web
+npm run check
 ```
 
 The CI pipeline runs these checks on Python 3.9 through 3.14.
@@ -96,8 +98,8 @@ More command examples live in [examples/](examples/).
 
 ## Browser App
 
-There is also a client-side web version in [docs/](docs/). It runs entirely in the
-browser with PDF.js and jsPDF, so PDFs do not need to be uploaded to a server.
+There is also a client-side web version in [apps/web/](apps/web/). It runs entirely in
+the browser with PDF.js and jsPDF, so PDFs do not need to be uploaded to a server.
 
 Open it here: [doradsoft.github.io/out-of-black-ink](https://doradsoft.github.io/out-of-black-ink/).
 
@@ -110,10 +112,10 @@ Publishing is handled by GitHub Actions:
 
 - Pull requests and pushes run tests, linting, and package builds.
 - Publishing a GitHub release publishes the package to PyPI.
+- Publishing a GitHub release can also publish the web package to npm.
 - The Publish workflow can also be run manually against TestPyPI.
 
-PyPI publishing is designed for trusted publishing. Configure the `pypi` and `testpypi`
-environments in GitHub before the first release.
+See [docs/PUBLISHING.md](docs/PUBLISHING.md) for PyPI and npm token setup.
 
 ## ChatGPT App
 
@@ -131,4 +133,4 @@ This tool rasterizes the PDF. The output PDF is image-based, not selectable/sear
 
 ## License
 
-MIT
+MIT. See [docs/LICENSE_COMPLIANCE.md](docs/LICENSE_COMPLIANCE.md) for dependency license notes.

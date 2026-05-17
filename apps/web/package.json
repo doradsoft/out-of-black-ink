@@ -1,0 +1,49 @@
+{
+  "name": "@doradsoft/out-of-black-ink-web",
+  "version": "0.1.0",
+  "description": "Client-side web app for recoloring black and gray PDF content.",
+  "license": "MIT",
+  "author": "Dorad Soft",
+  "type": "module",
+  "homepage": "https://doradsoft.github.io/out-of-black-ink/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doradsoft/out-of-black-ink.git",
+    "directory": "apps/web"
+  },
+  "bugs": {
+    "url": "https://github.com/doradsoft/out-of-black-ink/issues"
+  },
+  "files": [
+    "dist",
+    "src",
+    "index.html",
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check": "npm run lint && npm run format:check && npm test && npm run build",
+    "dev": "vite --host 127.0.0.1",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1",
+    "pdfjs-dist": "^4.10.38"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "vite": "^7.2.7"
+  }
+}

@@ -1,9 +1,16 @@
-import * as pdfjs from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+import { jsPDF } from "jspdf";
+import * as pdfjs from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
-pdfjs.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+import {
+  hexToRgb,
+  normalizeHexColor,
+  parsePages,
+  recolorImageData,
+} from "./pdf-recolor.js";
+import "./styles.css";
 
-const { jsPDF } = globalThis.jspdf;
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const fileInput = document.querySelector("#pdf-file");
 const dropzone = document.querySelector("#dropzone");
@@ -32,64 +39,6 @@ const setStatus = (message, progressValue = null) => {
   progress.value = progressValue;
 };
 
-const normalizeHexColor = (value) => {
-  const trimmed = value.trim();
-  const hex = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
-    throw new Error("Color must be in #RRGGBB format.");
-  }
-  return hex.toLowerCase();
-};
-
-const hexToRgb = (value) => {
-  const hex = normalizeHexColor(value).slice(1);
-  return [0, 2, 4].map((index) => Number.parseInt(hex.slice(index, index + 2), 16));
-};
-
-const parsePages = (value, pageCount) => {
-  if (!value.trim()) {
-    return Array.from({ length: pageCount }, (_, index) => index + 1);
-  }
-
-  const pages = value
-    .split(",")
-    .map((part) => Number.parseInt(part.trim(), 10))
-    .filter((page) => Number.isInteger(page));
-
-  if (pages.length === 0) {
-    throw new Error("Pages must be comma-separated page numbers, such as 1,3,5.");
-  }
-
-  for (const page of pages) {
-    if (page < 1 || page > pageCount) {
-      throw new Error(`Page ${page} is out of range 1..${pageCount}.`);
-    }
-  }
-
-  return pages;
-};
-
-const recolorImageData = (imageData, target, threshold, maxSaturation) => {
-  const { data } = imageData;
-  for (let index = 0; index < data.length; index += 4) {
-    const red = data[index];
-    const green = data[index + 1];
-    const blue = data[index + 2];
-    const maxColor = Math.max(red, green, blue);
-    const minColor = Math.min(red, green, blue);
-    const luminance = Math.floor((299 * red + 587 * green + 114 * blue) / 1000);
-    const saturation = maxColor - minColor;
-
-    if (luminance < threshold && saturation < maxSaturation) {
-      const alpha = Math.max(0, Math.min(255, 255 - luminance)) / 255;
-      data[index] = Math.round(255 - (255 - target[0]) * alpha);
-      data[index + 1] = Math.round(255 - (255 - target[1]) * alpha);
-      data[index + 2] = Math.round(255 - (255 - target[2]) * alpha);
-    }
-  }
-  return imageData;
-};
-
 const setSelectedFile = (file) => {
   selectedFile = file;
   fileName.textContent = file ? file.name : "No file selected";
@@ -105,6 +54,60 @@ const syncColorInput = () => {
   const normalized = normalizeHexColor(colorText.value);
   colorInput.value = normalized;
   colorText.value = normalized;
+};
+
+const renderRecoloredPage = async ({
+  page,
+  renderScale,
+  targetColor,
+  threshold,
+  maxSaturation,
+}) => {
+  const viewport = page.getViewport({ scale: renderScale });
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+
+  await page.render({ canvasContext: context, viewport }).promise;
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  context.putImageData(
+    recolorImageData(imageData, targetColor, threshold, maxSaturation),
+    0,
+    0,
+  );
+
+  return {
+    image: canvas.toDataURL("image/jpeg", 0.92),
+    width: viewport.width / renderScale,
+    height: viewport.height / renderScale,
+  };
+};
+
+const addPageToPdf = (outputPdf, pageImage) => {
+  const orientation =
+    pageImage.width > pageImage.height ? "landscape" : "portrait";
+  const nextPdf =
+    outputPdf ??
+    new jsPDF({
+      orientation,
+      unit: "pt",
+      format: [pageImage.width, pageImage.height],
+    });
+
+  if (outputPdf) {
+    nextPdf.addPage([pageImage.width, pageImage.height], orientation);
+  }
+
+  nextPdf.addImage(
+    pageImage.image,
+    "JPEG",
+    0,
+    0,
+    pageImage.width,
+    pageImage.height,
+  );
+  return nextPdf;
 };
 
 const convertPdf = async () => {
@@ -123,36 +126,27 @@ const convertPdf = async () => {
 
   for (let pageIndex = 0; pageIndex < selectedPages.length; pageIndex += 1) {
     const pageNumber = selectedPages[pageIndex];
-    setStatus(`Rendering page ${pageIndex + 1} of ${selectedPages.length}...`, pageIndex / selectedPages.length);
+    setStatus(
+      `Rendering page ${pageIndex + 1} of ${selectedPages.length}...`,
+      pageIndex / selectedPages.length,
+    );
 
     const page = await pdf.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: renderScale });
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    canvas.width = Math.ceil(viewport.width);
-    canvas.height = Math.ceil(viewport.height);
-
-    await page.render({ canvasContext: context, viewport }).promise;
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    context.putImageData(recolorImageData(imageData, targetColor, threshold, maxSaturation), 0, 0);
-
-    const pageWidth = viewport.width / renderScale;
-    const pageHeight = viewport.height / renderScale;
-    const orientation = pageWidth > pageHeight ? "landscape" : "portrait";
-    const image = canvas.toDataURL("image/jpeg", 0.92);
-
-    if (!outputPdf) {
-      outputPdf = new jsPDF({ orientation, unit: "pt", format: [pageWidth, pageHeight] });
-    } else {
-      outputPdf.addPage([pageWidth, pageHeight], orientation);
-    }
-
-    outputPdf.addImage(image, "JPEG", 0, 0, pageWidth, pageHeight);
+    const pageImage = await renderRecoloredPage({
+      page,
+      renderScale,
+      targetColor,
+      threshold,
+      maxSaturation,
+    });
+    outputPdf = addPageToPdf(outputPdf, pageImage);
   }
 
   const baseName = selectedFile.name.replace(/\.pdf$/i, "");
   outputPdf.save(`${baseName}-color-ink.pdf`);
-  setStatus(`Converted ${selectedPages.length} page${selectedPages.length === 1 ? "" : "s"}.`);
+  setStatus(
+    `Converted ${selectedPages.length} page${selectedPages.length === 1 ? "" : "s"}.`,
+  );
 };
 
 fileInput.addEventListener("change", () => {
@@ -172,7 +166,10 @@ dropzone.addEventListener("drop", (event) => {
   event.preventDefault();
   dropzone.classList.remove("is-dragging");
   const file = event.dataTransfer.files?.[0];
-  if (file?.type === "application/pdf" || file?.name.toLowerCase().endsWith(".pdf")) {
+  if (
+    file?.type === "application/pdf" ||
+    file?.name.toLowerCase().endsWith(".pdf")
+  ) {
     fileInput.files = event.dataTransfer.files;
     setSelectedFile(file);
   } else {
@@ -199,7 +196,8 @@ thresholdInput.addEventListener("input", () => {
 });
 
 saturationInput.addEventListener("input", () => {
-  document.querySelector("#saturation-value").textContent = saturationInput.value;
+  document.querySelector("#saturation-value").textContent =
+    saturationInput.value;
 });
 
 form.addEventListener("submit", async (event) => {
