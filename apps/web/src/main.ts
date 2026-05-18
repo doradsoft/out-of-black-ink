@@ -99,7 +99,7 @@ const renderRecoloredPage = async ({
   canvas.width = Math.ceil(viewport.width);
   canvas.height = Math.ceil(viewport.height);
 
-  await page.render({ canvasContext: context, viewport }).promise;
+  await page.render({ canvas, canvasContext: context, viewport }).promise;
   const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
   context.putImageData(
     recolorImageData(imageData, targetColor, threshold, maxSaturation),
